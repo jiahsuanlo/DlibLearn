@@ -32,6 +32,7 @@ int main()
 	trainer.set_learning_rate(0.01);
 	trainer.set_min_learning_rate(0.00001);
 	trainer.set_mini_batch_size(128);
+	trainer.set_max_num_epochs(5);
 	trainer.be_verbose();
 
 	// save results every 20 second
@@ -44,10 +45,25 @@ int main()
 	net.clean();
 	dlib::serialize("mnist_network.dat") << net;
 
+	// now run train images through net
+	std::vector<unsigned long> predicted_labels = net(train_images);
+	int num_right = 0;
+	int num_wrong = 0;
+	for (size_t i =0; i< train_images.size(); ++i)
+	{
+		if (predicted_labels[i] == train_labels[i])
+			++num_right;
+		else
+			++num_wrong;
+	}
+	std::cout << "training number right= " << num_right << std::endl;
+	std::cout << "training number wrong= " << num_wrong << std::endl;
+	std::cout << "training accuracy= " << num_right / double(num_right + num_wrong) << std::endl;
 
 
 
 
+	std::system("pause");
 
     return 0;
 }
