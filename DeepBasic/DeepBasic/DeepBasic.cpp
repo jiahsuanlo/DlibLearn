@@ -60,6 +60,24 @@ int main()
 	std::cout << "training number wrong= " << num_wrong << std::endl;
 	std::cout << "training accuracy= " << num_right / double(num_right + num_wrong) << std::endl;
 
+	// now run on test images
+	predicted_labels.clear();
+	predicted_labels = net(test_images);
+	num_right = 0; num_wrong = 0;
+	for (size_t i=0; i< predicted_labels.size(); ++i)
+	{
+		if (predicted_labels[i] == test_labels[i])
+		{
+			++num_right;
+		}
+		else
+		{
+			++num_wrong;
+		}
+	}
+	std::cout << "test number right= " << num_right << "\n";
+	std::cout << "test number wrong= " << num_wrong << "\n";
+	std::cout << "test accuracy= " << num_right / double(num_right + num_wrong) << "\n";
 
 
 
