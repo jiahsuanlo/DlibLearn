@@ -1,7 +1,6 @@
 // DeepBasic.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include <dlib/dnn.h>
 #include <iostream>
 #include <dlib/data_io.h>
@@ -13,7 +12,7 @@ int main()
 	std::vector<unsigned long> train_labels;
 	std::vector<dlib::matrix<unsigned char>> test_images;
 	std::vector<unsigned long> test_labels;
-	dlib::load_mnist_dataset("./mnistImages", train_images, train_labels,
+	dlib::load_mnist_dataset("../data/mnistImages", train_images, train_labels,
 		test_images, test_labels);
 
 	// define leNet
@@ -36,14 +35,14 @@ int main()
 	trainer.be_verbose();
 
 	// save results every 20 second
-	trainer.set_synchronization_file("mnist_sync", std::chrono::seconds(20));
+	trainer.set_synchronization_file("./DeepBasic.dir/mnist_sync", std::chrono::seconds(20));
 
 	// start training
 	trainer.train(train_images, train_labels);
 
 	// save the trained model
 	net.clean();
-	dlib::serialize("mnist_network.dat") << net;
+	dlib::serialize("./DeepBasic.dir/mnist_network.dat") << net;
 
 	// now run train images through net
 	std::vector<unsigned long> predicted_labels = net(train_images);

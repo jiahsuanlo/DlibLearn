@@ -1,7 +1,6 @@
 // DeepAdvanced.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include <dlib/dnn.h>
 #include <iostream>
 #include <dlib/data_io.h>
@@ -87,7 +86,7 @@ int main()
 	std::vector<unsigned long> train_labels;
 	std::vector<dlib::matrix<unsigned char>> test_images;
 	std::vector<unsigned long> test_labels;
-	dlib::load_mnist_dataset("../../data/mnistimages", train_images,
+	dlib::load_mnist_dataset("../data/mnistimages", train_images,
 		train_labels, test_images, test_labels);
 
 	// set cudnn to use smaller ram required algorithm
