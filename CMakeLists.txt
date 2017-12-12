@@ -25,3 +25,6 @@ target_link_libraries(PtCloud dlib::dlib)
 
 add_executable(DeepAdvanced ./src/DeepAdvanced/deepAdvanced.cpp)
 target_link_libraries(DeepAdvanced dlib::dlib)
+
+add_executable(VehicleDetector ./src/VehicleDetector/vehicleDetection.cpp)
+target_link_libraries(VehicleDetector dlib::dlib)
