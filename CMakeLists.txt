@@ -28,3 +28,6 @@ target_link_libraries(DeepAdvanced dlib::dlib)
 
 add_executable(VehicleDetector ./src/VehicleDetector/vehicleDetection.cpp)
 target_link_libraries(VehicleDetector dlib::dlib)
+
+add_executable(MaxMarginObjectDetection ./src/MaxMarginObjectDetection/maxMargin.cpp)
+target_link_libraries(MaxMarginObjectDetection dlib::dlib)
