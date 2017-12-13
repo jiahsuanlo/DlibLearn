@@ -80,12 +80,82 @@ int main(int argc, char**argv)
 	// set mini batch
 	std::vector<matrix<unsigned char>> mini_batch_samples;
 	std::vector<unsigned long> mini_batch_labels;
-
-	while (trainer.get_learning_rate >= 1e-6)
+	dlib::rand rnd(time(0));
+	
+	while (trainer.get_learning_rate() >= 1e-6)
 	{
-
+		mini_batch_samples.clear();
+		mini_batch_labels.clear();
+		// make 128 mini batch
+		while (mini_batch_samples.size() < 128)
+		{
+			auto idx = rnd.get_random_32bit_number() % training_images.size();
+			mini_batch_samples.push_back(training_images[idx]);
+			mini_batch_labels.push_back(training_labels[idx]);
+		}
+		// train mini batch
+		trainer.train_one_step(mini_batch_samples, mini_batch_labels);
+		// can also use test_one_step to show test accuracy
 	}
 	
+	// train_one_step is multithreaded implementation. So need to use
+	// trainer.get_net to perform synchronization
+	trainer.get_net();
+
+	// save net 
+	net.clean();
+	serialize("./DeepAdvanced.dir/mnist_res_network.dat") << net;
+
+	// test net: batchnorm will be replaced by affine layer
+	using test_net_type = loss_multiclass_log < fc < num_classes,
+		avg_pool_everything<res_a<res_a<res_a<resa_down<
+		repeat<9, res_a,
+		resa_down<res_a<
+		input<matrix<unsigned char>>>>>>>>>>>>;
+
+	// can assign trained net to test net
+	test_net_type tnet = net;
+	// or deserialize from saved file
+
+	// run training data
+	std::vector<unsigned long> predicted_labels = tnet(training_images);
+	int num_right = 0;
+	int num_wrong = 0;
+	for (size_t i = 0; i < training_images.size(); i++)
+	{
+		if (predicted_labels[i] == training_labels[i])
+		{
+			num_right++;
+		}
+		else
+		{
+			num_wrong++;
+		}
+	}
+	std::cout << "training num right= " << num_right << "\n";
+	std::cout << "training num wrong= " << num_wrong << "\n";
+	std::cout << "training accuracy= " << num_right / double(num_right + num_wrong) << "\n";
+
+	// run test data
+	predicted_labels = tnet(testing_images);
+	num_right = 0;
+	num_wrong = 0;
+	for (size_t i = 0; i < testing_images.size(); ++i)
+	{
+		if (predicted_labels[i] == testing_labels[i])
+		{
+			num_right++;
+		}
+		else
+		{
+			num_wrong++;
+		}
+	}
+	std::cout << "testing num right= " << num_right << "\n";
+	std::cout << "testing num wrong= " << num_wrong << "\n";
+	std::cout << "testing accuracy= " << num_right / double(num_right + num_wrong) << "\n";
+
+
 	std::system("pause");
 	return 0;
 }
