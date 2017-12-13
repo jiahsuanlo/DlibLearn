@@ -54,10 +54,72 @@ int main(int argc, char** argv)
 	// The MMOD loss requires that the number of filters in the final network layer equal
 	// options.detector_windows.size().  So we set that here as well.
 	net.subnet().layer_details().set_num_filters(options.detector_windows.size());
-	dnn_trainer<net_type> trainer(net);
-
-
 	
+	// setup the trainer
+	dnn_trainer<net_type> trainer(net);
+	trainer.set_learning_rate(0.1);
+	trainer.be_verbose();
+	trainer.set_synchronication_file("./MaxMarginObjectDetection.dir/mmod_sync",
+		std::chrono::minutes(2));
+	trainer.set_iterations_without_progress_threshold(50);
+	
+	// train the network
+	std::vector<matrix<rgb_pixel>> mini_batch_images;
+	std::vector<std::vector<mmod_rect>> mini_batch_labels;
+	
+	// create a random image cropper. the cropper will perform
+	// rotation, cropping, and translation
+	random_cropper cropper;
+	cropper.set_chip_dims(200,200);
+	cropper.set_min_object_size(0.2);
+	dlib::rand rnd;
+	
+	// training loop
+	int num_minibatch= 10;
+	while (trainer.get_learning_rate() >= 1e-2)
+	{
+		cropper(num_minibatch, train_images, train_boxes,
+			mini_batch_images, mini_batch_labels);
+		// also apply random color jittering
+		for (auto &img: mini_batch_images)
+			disturb_colors(img, rnd);
+		
+		// train one step
+		trainer.train_one_step(mini_batch_images, mini_batch_labels);
+	}
+	
+	// wait for the training threads...
+	trainer.get_net();
+	std::cout<<"Done training!\n";
+	
+	// save network to disk
+	net.clean();
+	serialize("./MaxMarginObjectDetection.dir/mmod_network.dat") << net;
+	
+	// test on training data
+	std::cout<<"training results: "<< 
+		test_object_detection_function(net, train_images, train_boxes)<<"\n";
+	// test on testing data
+	std::cout<<"test results: "<<
+		test_object_detection_function(net, test_images, test_boxes)<<"\n";
+	
+	// print the trainer and cropper settings
+	std::cout<<trainer<< cropper<<"\n";
+	
+	// look at the results on test images
+	image_window win;
+	for (auto&& img: test_images)
+	{
+		pyramid_up(img);
+		auto dets= net(img);  // get detections using forward prop
+		win.clear_overlay();
+		win.set_image(img);
+		for (auto&& d: dets)
+		{
+			win.add_overlay(d);
+		}
+		std::cin.get();  // wait for user to skip to the next image
+	}
 
 	std::system("pause");
 	return 0;
