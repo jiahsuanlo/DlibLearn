@@ -31,3 +31,6 @@ target_link_libraries(VehicleDetector dlib::dlib)
 
 add_executable(MaxMarginObjectDetection ./src/MaxMarginObjectDetection/maxMargin.cpp)
 target_link_libraries(MaxMarginObjectDetection dlib::dlib)
+
+add_executable(VehicleFrontBackDetector ./src/VehicleFrontBackDetector/vehicleFrontBackDetector.cpp)
+target_link_libraries(VehicleFrontBackDetector dlib::dlib)

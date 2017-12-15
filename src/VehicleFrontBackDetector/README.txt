@@ -1,0 +1,1 @@
+The mmod cnn pre-trained model is from http://dlib.net/files/mmod_front_and_rear_end_vehicle_detector.dat.bz2
