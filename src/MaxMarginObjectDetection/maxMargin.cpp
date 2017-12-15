@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 	dnn_trainer<net_type> trainer(net);
 	trainer.set_learning_rate(0.1);
 	trainer.be_verbose();
-	trainer.set_synchronication_file("./MaxMarginObjectDetection.dir/mmod_sync",
+	trainer.set_synchronization_file("./MaxMarginObjectDetection.dir/mmod_sync",
 		std::chrono::minutes(2));
 	trainer.set_iterations_without_progress_threshold(50);
 	
@@ -75,8 +75,8 @@ int main(int argc, char** argv)
 	dlib::rand rnd;
 	
 	// training loop
-	int num_minibatch= 10;
-	while (trainer.get_learning_rate() >= 1e-2)
+	int num_minibatch= 30;
+	while (trainer.get_learning_rate() >= 1e-4)
 	{
 		cropper(num_minibatch, train_images, train_boxes,
 			mini_batch_images, mini_batch_labels);
@@ -116,6 +116,8 @@ int main(int argc, char** argv)
 		win.set_image(img);
 		for (auto&& d: dets)
 		{
+			std::cout << "detection confidence= " << d.detection_confidence
+				<< " rect= " << d.rect.top();
 			win.add_overlay(d);
 		}
 		std::cin.get();  // wait for user to skip to the next image
