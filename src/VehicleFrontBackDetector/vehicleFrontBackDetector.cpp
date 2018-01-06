@@ -7,6 +7,12 @@ front and back side views
 #include <dlib/image_io.h>
 #include <dlib/gui_widgets.h>
 #include <dlib/image_processing.h>
+#include <dlib\opencv.h>
+#include <opencv2\highgui.hpp>
+#include <opencv2\core.hpp>
+#include <opencv2\video.hpp>
+#include <thread>
+#include <chrono>
 
 using namespace dlib;
 
@@ -28,32 +34,45 @@ int main(int argc, char** argv)
 		net>>sp;
 
 	// load vehicle test image
-	matrix<rgb_pixel> img;
-	load_image(img, "../data/vehicle_photos/0016E5_05550.png");
-
+	//matrix<rgb_pixel> img;
+	//load_image(img, "../data/vehicle_photos/0016E5_05550.png");
+	std::string img_fdr = "C:/Users/joshlo/Documents/MachineLearning/DeepLearningCourse/YOLO/images/";
 	image_window win;
-	win.set_image(img);
 
-	// run the detector
-	for (auto&& d : net(img))
+	for (int i = 1; i < 100;++i)
 	{
-		// use shape predictor to output four corners
-		auto fourCorners = sp(img, d);
-		rectangle rect;
-		for (unsigned long j = 0; j < fourCorners.num_parts(); ++j)
-		{
-			rect += fourCorners.part(j);
-		}
-		if (d.label == "rear")
-		{
-			win.add_overlay(rect, rgb_pixel(255, 0, 0), d.label);
-		}
-		else
-		{
-			win.add_overlay(rect, rgb_pixel(0, 0, 255), d.label);
-		}
-	}
+		char fname[]="";
+		sprintf(fname,"%04i.jpg", i);
+		std::string img_file = img_fdr + fname;
+		matrix<rgb_pixel> img;
+		load_image(img, img_file);
 
+		// display image
+		win.clear_overlay();
+		win.set_image(img);
+
+		// run the detector
+		for (auto&& d : net(img))
+		{
+			// use shape predictor to output four corners
+			auto fourCorners = sp(img, d);
+			rectangle rect;
+			for (unsigned long j = 0; j < fourCorners.num_parts(); ++j)
+			{
+				rect += fourCorners.part(j);
+			}
+			if (d.label == "rear")
+			{
+				win.add_overlay(rect, rgb_pixel(255, 0, 0), d.label);
+			}
+			else
+			{
+				win.add_overlay(rect, rgb_pixel(0, 0, 255), d.label);
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		
+	}
 
 	std::system("pause");
 	return 0;

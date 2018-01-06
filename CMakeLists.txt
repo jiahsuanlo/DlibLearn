@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 2.8.12)
 project(DlibLearn)
 
 
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+
 # Tell cmake we will need dlib.  This command will pull in dlib and compile it
 # into your project.  Note that you don't need to compile or install dlib.  All
 # cmake needs is the dlib source code folder and it will take care of everything.
@@ -33,4 +36,4 @@ add_executable(MaxMarginObjectDetection ./src/MaxMarginObjectDetection/maxMargin
 target_link_libraries(MaxMarginObjectDetection dlib::dlib)
 
 add_executable(VehicleFrontBackDetector ./src/VehicleFrontBackDetector/vehicleFrontBackDetector.cpp)
-target_link_libraries(VehicleFrontBackDetector dlib::dlib)
+target_link_libraries(VehicleFrontBackDetector dlib::dlib ${OpenCV_LIBS})
